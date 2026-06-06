@@ -3,7 +3,7 @@ namespace BucketListApp.Domain.Entities;
 public class User
 {
     // กำหนดให้เป็น byte[] เพื่อรองรับ RAW(16) UUID จาก Oracle
-    public byte[] UserId { get; set; } = Array.Empty<byte>();
+    public byte[] UserId { get; set; }
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

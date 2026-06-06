@@ -25,7 +25,8 @@ public class AuthService : IAuthService
     public async Task<bool> RegisterAsync(RegisterRequest request)
     {
         // 1. ตรวจสอบว่าอีเมลซ้ำหรือไม่
-        if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        if (existingUser != null)
             return false;
 
         // 2. แฮชรหัสผ่านด้วย BCrypt

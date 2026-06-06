@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using BucketListApp.Domain.Entities;
 
 namespace BucketListApp.Infrastructure.Data;
@@ -15,16 +16,29 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Value converter for Oracle (int boolean: 0 = false, 1 = true)
+        var intToBoolConverter = new ValueConverter<int, int>(
+            v => v == 0 ? 0 : 1,
+            v => v
+        );
+
         // คอนฟิกตาราง USERS
         modelBuilder.Entity<User>(entity =>
         {
             entity.ToTable("USERS");
             entity.HasKey(e => e.UserId);
-            entity.Property(e => e.UserId).HasColumnName("USER_ID").HasColumnType("RAW(16)").HasDefaultValueSql("SYS_GUID()");
+            entity.Property(e => e.UserId)
+                .HasColumnName("USER_ID")
+                .HasColumnType("RAW(16)")
+                .HasDefaultValueSql("SYS_GUID()")
+                .ValueGeneratedOnAdd();
             entity.Property(e => e.Email).HasColumnName("EMAIL").HasMaxLength(150).IsRequired();
             entity.Property(e => e.PasswordHash).HasColumnName("PASSWORD_HASH").HasMaxLength(500).IsRequired();
             entity.Property(e => e.CreatedAt).HasColumnName("CREATED_AT").HasDefaultValueSql("SYSTIMESTAMP");
-            entity.Property(e => e.IsActive).HasColumnName("IS_ACTIVE").HasDefaultValue(1);
+            entity.Property(e => e.IsActive)
+                .HasColumnName("IS_ACTIVE")
+                .HasDefaultValue(1)
+                .HasConversion(intToBoolConverter);
         });
 
         // คอนฟิกตาราง BUCKET_LIST_ITEMS
@@ -38,10 +52,16 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Title).HasColumnName("TITLE").HasMaxLength(150).IsRequired();
             entity.Property(e => e.Description).HasColumnName("DESCRIPTION").HasMaxLength(1000);
             entity.Property(e => e.Priority).HasColumnName("PRIORITY").HasMaxLength(10).IsRequired();
-            entity.Property(e => e.IsCompleted).HasColumnName("IS_COMPLETED").HasDefaultValue(0);
+            entity.Property(e => e.IsCompleted)
+                .HasColumnName("IS_COMPLETED")
+                .HasDefaultValue(0)
+                .HasConversion(intToBoolConverter);
             entity.Property(e => e.CompletedAt).HasColumnName("COMPLETED_AT");
             entity.Property(e => e.CreatedAt).HasColumnName("CREATED_AT").HasDefaultValueSql("SYSTIMESTAMP");
-            entity.Property(e => e.IsDeleted).HasColumnName("IS_DELETED").HasDefaultValue(0);
+            entity.Property(e => e.IsDeleted)
+                .HasColumnName("IS_DELETED")
+                .HasDefaultValue(0)
+                .HasConversion(intToBoolConverter);
 
             // ARCHITECT TRICK: Global Query Filter สำหรับ Soft Delete
             // ทุกครั้งที่เขียน Linq ดึงข้อมูลจากตารางนี้ มันจะเติม "WHERE IS_DELETED = 0" ให้เราเองโดยอัตโนมัติ

@@ -1,9 +1,22 @@
+using BucketListApp.Application.Interfaces;
+using BucketListApp.Application.Services;
+using BucketListApp.Infrastructure.Extensions;
 using Scalar.AspNetCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Load secret configuration
+builder.Configuration.AddJsonFile("appsettings.Secret.json", optional: false, reloadOnChange: true);
+
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+// Register Infrastructure Services (DbContext, Repositories, etc.)
+builder.Services.AddInfrastructureServices(builder.Configuration);
+
+// Register Application Services
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
@@ -15,6 +28,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.MapControllers();
 
 var summaries = new[]
 {
