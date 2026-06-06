@@ -4,6 +4,10 @@
     <ProjectReference Include="..\..\Core\BucketListApp.Application\BucketListApp.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Oracle.EntityFrameworkCore" Version="9.24.0" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
