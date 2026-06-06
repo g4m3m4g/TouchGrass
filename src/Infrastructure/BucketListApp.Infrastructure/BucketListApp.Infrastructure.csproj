@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\BucketListApp.Application\BucketListApp.Application.csproj" />
+    <ProjectReference Include="..\..\Core\BucketListApp.Domain\BucketListApp.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="9.24.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
   </ItemGroup>
 
   <PropertyGroup>
