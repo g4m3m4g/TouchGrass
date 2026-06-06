@@ -1,0 +1,6 @@
+@BucketListApp.WebApi_HostAddress = http://localhost:5266
+
+GET {{BucketListApp.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

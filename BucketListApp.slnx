@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Core/">
+    <Project Path="src/Core/BucketListApp.Application/BucketListApp.Application.csproj" />
+    <Project Path="src/Core/BucketListApp.Domain/BucketListApp.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="src/Infrastructure/BucketListApp.Infrastructure/BucketListApp.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Presentation/">
+    <Project Path="src/Presentation/BucketListApp.WebApi/BucketListApp.WebApi.csproj" />
+  </Folder>
+</Solution>
