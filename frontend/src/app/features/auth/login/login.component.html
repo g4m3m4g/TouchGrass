@@ -1,52 +1,75 @@
 <div class="auth-container">
-  <div class="glass-auth-card">
-    <div class="auth-header">
-      <h2>ยินดีต้อนรับกลับมา</h2>
-      <p>เข้าสู่ระบบเพื่อจัดการเป้าหมายชีวิตของคุณ</p>
-    </div>
+  <div class="auth-card">
+    <header class="auth-header">
+      <h1>Welcome back</h1>
+      <p>Sign in to manage your goals.</p>
+    </header>
 
     @if (errorMessage) {
-      <div class="error-toast">⚠️ {{ errorMessage }}</div>
+      <div class="error-banner" role="alert">
+        <span class="error-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-3a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 5Zm0 7a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" fill="currentColor"/>
+          </svg>
+        </span>
+        {{ errorMessage }}
+      </div>
     }
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
-      <div class="form-group">
-        <label for="email">อีเมล</label>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+      <div class="form-field">
+        <label for="email">Email</label>
         <input
           type="email"
           id="email"
           formControlName="email"
-          placeholder="example@test.com"
-          [ngClass]="{
-            'input-error': loginForm.get('email')?.touched && loginForm.get('email')?.invalid,
-          }"
+          placeholder="you@example.com"
+          autocomplete="email"
+          [class.is-error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+          aria-describedby="email-error"
         />
+        @if (loginForm.get('email')?.touched && loginForm.get('email')?.hasError('required')) {
+          <span class="field-error" id="email-error" role="alert">Email is required.</span>
+        } @else if (loginForm.get('email')?.touched && loginForm.get('email')?.hasError('email')) {
+          <span class="field-error" id="email-error" role="alert">Enter a valid email address.</span>
+        }
       </div>
 
-      <div class="form-group">
-        <label for="password">รหัสผ่าน</label>
+      <div class="form-field">
+        <label for="password">Password</label>
         <input
           type="password"
           id="password"
           formControlName="password"
           placeholder="••••••••"
-          [ngClass]="{
-            'input-error': loginForm.get('password')?.touched && loginForm.get('password')?.invalid,
-          }"
+          autocomplete="current-password"
+          [class.is-error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+          aria-describedby="password-error"
         />
+        @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
+          <span class="field-error" id="password-error" role="alert">Password is required.</span>
+        } @else if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')) {
+          <span class="field-error" id="password-error" role="alert">Password must be at least 6 characters.</span>
+        }
       </div>
 
-      <button type="submit" [disabled]="loginForm.invalid || isLoading" class="btn-submit">
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="loginForm.invalid || isLoading"
+        [attr.aria-busy]="isLoading"
+      >
         @if (isLoading) {
-          กำลังตรวจสอบข้อมูล...
+          <span class="btn-spinner" aria-hidden="true"></span>
+          Signing in…
         } @else {
-          เข้าสู่ระบบ
+          Sign in
         }
       </button>
     </form>
 
-    <div class="auth-footer">
-      <p>ยังไม่มีบัญชีผู้ใช้? <a routerLink="/register">สมัครสมาชิกที่นี่</a></p>
-    </div>
+    <footer class="auth-footer">
+      <p>No account yet? <a routerLink="/register">Create one</a></p>
+    </footer>
   </div>
 </div>

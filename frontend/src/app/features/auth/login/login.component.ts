@@ -1,31 +1,26 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  loginForm: FormGroup;
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  loginForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
+
   isLoading = false;
   errorMessage = '';
-
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-  ) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-    });
-  }
 
   onSubmit(): void {
     if (this.loginForm.invalid) return;
@@ -33,14 +28,14 @@ export class LoginComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.authService.login(this.loginForm.value).subscribe({
+    this.authService.login(this.loginForm.getRawValue() as { email: string; password: string }).subscribe({
       next: () => {
         this.isLoading = false;
-        this.router.navigate(['/dashboard']); // ล็อกอินผ่านแล้วให้วิ่งไปหน้า Dashboard
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+        this.errorMessage = err.error?.message || 'Incorrect email or password.';
       },
     });
   }
