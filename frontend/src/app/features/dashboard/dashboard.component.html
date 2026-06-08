@@ -135,7 +135,12 @@
                   (item.isCompleted === 1 ? 'Mark incomplete: ' : 'Mark complete: ') + item.title
                 "
               />
-              <span class="goal-title">{{ item.title }}</span>
+              <span class="goal-content">
+                <span class="goal-title">{{ item.title }}</span>
+                @if (item.description) {
+                  <span class="goal-description">{{ item.description }}</span>
+                }
+              </span>
             </label>
 
             <div class="goal-meta">
