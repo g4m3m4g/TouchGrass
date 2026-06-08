@@ -1,0 +1,104 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <header class="auth-header">
+      <h1>Create an account</h1>
+      <p>Start tracking the things you want to do.</p>
+    </header>
+
+    @if (errorMessage) {
+      <div class="error-banner" role="alert">
+        <span class="error-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-3a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 5Zm0 7a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" fill="currentColor"/>
+          </svg>
+        </span>
+        {{ errorMessage }}
+      </div>
+    }
+
+    @if (successMessage) {
+      <div class="success-banner" role="status">
+        <span class="success-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm11.03-2.22a.75.75 0 0 1 0 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-1.5-1.5a.75.75 0 1 1 1.06-1.06l.97.97 2.97-2.97a.75.75 0 0 1 1.06 0Z" fill="currentColor"/>
+          </svg>
+        </span>
+        {{ successMessage }}
+      </div>
+    }
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+      <div class="form-field">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          placeholder="yourname"
+          autocomplete="username"
+          [class.is-error]="registerForm.get('username')?.touched && registerForm.get('username')?.invalid"
+          aria-describedby="username-error"
+        />
+        @if (registerForm.get('username')?.touched && registerForm.get('username')?.hasError('required')) {
+          <span class="field-error" id="username-error" role="alert">Username is required.</span>
+        } @else if (registerForm.get('username')?.touched && registerForm.get('username')?.hasError('minlength')) {
+          <span class="field-error" id="username-error" role="alert">Username must be at least 3 characters.</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          [class.is-error]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
+          aria-describedby="email-error"
+        />
+        @if (registerForm.get('email')?.touched && registerForm.get('email')?.hasError('required')) {
+          <span class="field-error" id="email-error" role="alert">Email is required.</span>
+        } @else if (registerForm.get('email')?.touched && registerForm.get('email')?.hasError('email')) {
+          <span class="field-error" id="email-error" role="alert">Enter a valid email address.</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder="••••••••"
+          autocomplete="new-password"
+          [class.is-error]="registerForm.get('password')?.touched && registerForm.get('password')?.invalid"
+          aria-describedby="password-error"
+        />
+        @if (registerForm.get('password')?.touched && registerForm.get('password')?.hasError('required')) {
+          <span class="field-error" id="password-error" role="alert">Password is required.</span>
+        } @else if (registerForm.get('password')?.touched && registerForm.get('password')?.hasError('minlength')) {
+          <span class="field-error" id="password-error" role="alert">Password must be at least 6 characters.</span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="registerForm.invalid || isLoading"
+        [attr.aria-busy]="isLoading"
+      >
+        @if (isLoading) {
+          <span class="btn-spinner" aria-hidden="true"></span>
+          Creating account…
+        } @else {
+          Create account
+        }
+      </button>
+    </form>
+
+    <footer class="auth-footer">
+      <p>Already have an account? <a routerLink="/login">Sign in</a></p>
+    </footer>
+  </div>
+</div>
