@@ -1,49 +1,47 @@
-// src/app/features/auth/register/register.component.ts
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
-  registerForm: FormGroup;
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  registerForm = this.fb.group({
+    username: ['', [Validators.required, Validators.minLength(3)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
+
   isLoading = false;
   errorMessage = '';
-
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-  ) {
-    this.registerForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-    });
-  }
+  successMessage = '';
 
   onSubmit(): void {
     if (this.registerForm.invalid) return;
 
     this.isLoading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
-    this.authService.register(this.registerForm.value).subscribe({
+    this.authService.register(
+      this.registerForm.getRawValue() as { username: string; email: string; password: string }
+    ).subscribe({
       next: () => {
         this.isLoading = false;
-        alert('สมัครสมาชิกสำเร็จ! กำลังนำคุณไปหน้าเข้าสู่ระบบ');
-        this.router.navigate(['/login']);
+        this.successMessage = 'Account created. Taking you to sign in…';
+        setTimeout(() => this.router.navigate(['/login']), 1200);
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก';
+        this.errorMessage = err.error?.message || 'Something went wrong. Please try again.';
       },
     });
   }
