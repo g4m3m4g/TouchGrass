@@ -53,9 +53,11 @@ export class DashboardComponent implements OnInit {
         this.items.unshift(created);
         this.newItem = { title: '', description: null, priority: 'MEDIUM', categoryId: null };
         this.errorToast = '';
+        this.cdr.markForCheck();
       },
       error: () => {
         this.errorToast = 'Could not save goal. Please try again.';
+        this.cdr.markForCheck();
       },
     });
   }
@@ -72,9 +74,11 @@ export class DashboardComponent implements OnInit {
     }).subscribe({
       next: () => {
         item.isCompleted = next;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.errorToast = 'Could not update goal status. Please try again.';
+        this.cdr.markForCheck();
         this.loadAllItems();
       },
     });
@@ -85,9 +89,11 @@ export class DashboardComponent implements OnInit {
       next: () => {
         this.items = this.items.filter((i) => i.itemId !== id);
         this.errorToast = '';
+        this.cdr.markForCheck();
       },
       error: () => {
         this.errorToast = 'Could not delete goal. Please try again.';
+        this.cdr.markForCheck();
       },
     });
   }
@@ -97,9 +103,11 @@ export class DashboardComponent implements OnInit {
       next: (data) => {
         this.randomItem = data;
         this.errorToast = '';
+        this.cdr.markForCheck();
       },
       error: () => {
         this.errorToast = 'No incomplete goals left to pick from.';
+        this.cdr.markForCheck();
       },
     });
   }
