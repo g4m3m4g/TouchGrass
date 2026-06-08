@@ -1,0 +1,191 @@
+<div class="dashboard">
+  <header class="dashboard-header">
+    <div class="header-identity">
+      <span class="app-wordmark">TouchGrass</span>
+      <span class="header-sep" aria-hidden="true">/</span>
+      <h1>{{ username }}'s list</h1>
+    </div>
+    <div class="header-actions">
+      <span
+        class="progress-count"
+        aria-label="{{ completedCount }} of {{ items.length }} completed"
+      >
+        {{ completedCount }}<span class="progress-total"> / {{ items.length }}</span>
+      </span>
+      <button type="button" class="btn-logout" (click)="logout()">Sign out</button>
+    </div>
+  </header>
+
+  <div class="dashboard-body">
+    <!-- ── Sidebar panel ──────────────────────────────── -->
+    <aside class="sidebar">
+      <!-- Add item -->
+      <section class="panel" aria-labelledby="add-heading">
+        <h2 id="add-heading" class="panel-heading">Add a goal</h2>
+
+        <div class="add-form">
+          <div class="form-field">
+            <label for="new-title">What do you want to do?</label>
+            <input
+              type="text"
+              id="new-title"
+              [(ngModel)]="newItem.title"
+              placeholder="I want to…"
+              (keydown.enter)="addItem()"
+              autocomplete="off"
+              maxlength="120"
+            />
+          </div>
+
+
+          <div class="form-field">
+            <label for="new-description">Description <span class="field-optional">(optional)</span></label>
+            <textarea
+              id="new-description"
+              [(ngModel)]="newItem.description"
+              placeholder="Add some context…"
+              autocomplete="off"
+              maxlength="500"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-field">
+            <label for="new-priority">Priority</label>
+            <div class="select-wrap">
+              <select id="new-priority" [(ngModel)]="newItem.priority">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+              </select>
+              <span class="select-caret" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path
+                    d="M2.5 4.5L6 8l3.5-3.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="addItem()"
+            [disabled]="!newItem.title.trim()"
+          >
+            Save goal
+          </button>
+        </div>
+      </section>
+
+      <!-- Pick random -->
+      <section class="panel panel-random" aria-labelledby="random-heading">
+        <h2 id="random-heading" class="panel-heading">Feeling lucky?</h2>
+        <p class="panel-description">Pick a goal at random from your bucket list.</p>
+
+        @if (randomItem) {
+          <div class="random-result" role="status" aria-live="polite">
+            <span class="random-label">Today's pick</span>
+            <p class="random-title">{{ randomItem.title }}</p>
+            <span
+              class="priority-chip"
+              [class.chip-high]="randomItem.priority === 'HIGH'"
+              [class.chip-medium]="randomItem.priority === 'MEDIUM'"
+              [class.chip-low]="randomItem.priority === 'LOW'"
+              >{{ randomItem.priority | lowercase }}</span
+            >
+          </div>
+        }
+
+        <button type="button" class="btn-secondary" (click)="clickRandom()">Pick for me</button>
+      </section>
+    </aside>
+
+    <!-- ── Main list ──────────────────────────────────── -->
+    <main class="list-panel" aria-labelledby="list-heading">
+      <div class="list-header">
+        <h2 id="list-heading">All goals</h2>
+        @if (errorToast) {
+          <div class="error-inline" role="alert">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-3a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 5Zm0 7a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
+                fill="currentColor"
+              />
+            </svg>
+            {{ errorToast }}
+          </div>
+        }
+      </div>
+
+      <ul class="goal-list" aria-label="Bucket list goals">
+        @for (item of items; track item.itemId) {
+          <li class="goal-item" [class.is-completed]="item.isCompleted === 1">
+            <label class="goal-check-wrap">
+              <input
+                type="checkbox"
+                [checked]="item.isCompleted === 1"
+                (change)="toggleComplete(item)"
+                [attr.aria-label]="
+                  (item.isCompleted === 1 ? 'Mark incomplete: ' : 'Mark complete: ') + item.title
+                "
+              />
+              <span class="goal-content">
+                <span class="goal-title">{{ item.title }}</span>
+                @if (item.description) {
+                  <span class="goal-description">{{ item.description }}</span>
+                }
+              </span>
+            </label>
+
+            <div class="goal-meta">
+              <span
+                class="priority-chip"
+                [class.chip-high]="item.priority === 'HIGH'"
+                [class.chip-medium]="item.priority === 'MEDIUM'"
+                [class.chip-low]="item.priority === 'LOW'"
+                aria-label="Priority: {{ item.priority | lowercase }}"
+                >{{ item.priority | lowercase }}</span
+              >
+
+              <button
+                type="button"
+                class="btn-delete"
+                (click)="deleteItem(item.itemId)"
+                [attr.aria-label]="'Delete goal: ' + item.title"
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6ZM14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span class="sr-only">Delete</span>
+              </button>
+            </div>
+          </li>
+        } @empty {
+          <li class="goal-empty" role="status">
+            <span class="empty-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <p>No goals yet. Add your first one.</p>
+          </li>
+        }
+      </ul>
+    </main>
+  </div>
+</div>
