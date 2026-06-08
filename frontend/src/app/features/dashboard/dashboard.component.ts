@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { LowerCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -14,6 +14,7 @@ import { BucketItemResponse, CreateBucketItemRequest } from '../../shared/models
 export class DashboardComponent implements OnInit {
   private bucketService = inject(BucketListService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   items: BucketItemResponse[] = [];
   randomItem: BucketItemResponse | null = null;
@@ -33,7 +34,10 @@ export class DashboardComponent implements OnInit {
 
   loadAllItems(): void {
     this.bucketService.getItems().subscribe({
-      next: (data) => (this.items = data),
+      next: (data) => {
+        this.items = data;
+        this.cdr.markForCheck();
+      },
       error: () => {
         // Token expired or unauthorized — redirect to login
         this.router.navigate(['/login']);
