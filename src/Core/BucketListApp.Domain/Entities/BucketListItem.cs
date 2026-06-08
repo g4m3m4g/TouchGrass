@@ -9,7 +9,7 @@ public class BucketListItem
     public int? CategoryId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public PriorityLevel Priority { get; set; } = PriorityLevel.Medium;
+    public PriorityLevel Priority { get; set; } = PriorityLevel.MEDIUM;
     public int IsCompleted { get; set; } = 0;
     public DateTime? CompletedAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

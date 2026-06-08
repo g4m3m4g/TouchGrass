@@ -2,6 +2,9 @@ using BucketListApp.Application.Interfaces;
 using BucketListApp.Application.Services;
 using BucketListApp.Infrastructure.Extensions;
 using Scalar.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +20,31 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 // Register Application Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBucketListService, BucketListService>();
+
+// คอนฟิกและลงทะเบียน JWT Authentication System
+var jwtSecret = builder.Configuration["JwtSettings:Secret"] ?? "jwt_typeshi_gang_67";
+var key = Encoding.ASCII.GetBytes(jwtSecret);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false; 
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,   
+        ValidateAudience = false, 
+        ClockSkew = TimeSpan.Zero 
+    };
+});
+
 
 var app = builder.Build();
 
@@ -28,6 +56,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication(); // แกะ JWT Token ตรวจสอบว่าเป็นใคร
+app.UseAuthorization();  // ตรวจสอบว่ามีสิทธิ์เข้าถึง Endpoint นั้นไหม
 app.MapControllers();
 
 var summaries = new[]

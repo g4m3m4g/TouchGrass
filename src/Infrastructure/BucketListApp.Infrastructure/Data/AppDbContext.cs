@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using BucketListApp.Domain.Entities;
+using BucketListApp.Domain.Enums;
 
 namespace BucketListApp.Infrastructure.Data;
 
@@ -51,7 +52,14 @@ public class AppDbContext : DbContext
             entity.Property(e => e.CategoryId).HasColumnName("CATEGORY_ID");
             entity.Property(e => e.Title).HasColumnName("TITLE").HasMaxLength(150).IsRequired();
             entity.Property(e => e.Description).HasColumnName("DESCRIPTION").HasMaxLength(1000);
-            entity.Property(e => e.Priority).HasColumnName("PRIORITY").HasMaxLength(10).IsRequired();
+            entity.Property(e => e.Priority)
+                .HasColumnName("PRIORITY")
+                .HasMaxLength(10)
+                .IsRequired()
+                .HasConversion(
+                    v => v.ToString(), // ตอนเซฟลง DB ให้แปลง Enum เป็น String
+                    v => Enum.Parse<PriorityLevel>(v) // ตอนอ่านจาก DB ให้แปลง String เป็น Enum
+                );
             entity.Property(e => e.IsCompleted)
                 .HasColumnName("IS_COMPLETED")
                 .HasDefaultValue(0)
@@ -72,6 +80,34 @@ public class AppDbContext : DbContext
                   .WithMany(p => p.BucketListItems)
                   .HasForeignKey(d => d.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(d => d.Category)
+              .WithMany(p => p.BucketListItems)
+              .HasForeignKey(d => d.CategoryId)
+              .OnDelete(DeleteBehavior.SetNull); // คล้องกับ ON DELETE SET NULL ในสคริปต์ SQL
         });
+    
+    // คอนฟิกตาราง CATEGORIES
+    modelBuilder.Entity<Category>(entity =>
+    {
+        entity.ToTable("CATEGORIES");
+        entity.HasKey(e => e.CategoryId);
+        entity.Property(e => e.CategoryId).HasColumnName("CATEGORY_ID").UseIdentityColumn();
+        entity.Property(e => e.Name).HasColumnName("NAME").HasMaxLength(100).IsRequired();
+        
+        // รองรับการเก็บ UUID ของเจ้าของหมวดหมู่ (สำหรับแนวทาง Hybrid)
+        entity.Property(e => e.UserId).HasColumnName("USER_ID").HasColumnType("RAW(16)");
+        
+        entity.Property(e => e.IsDeleted).HasColumnName("IS_DELETED").HasDefaultValue(0);
+
+        // Global Query Filter สำหรับซ่อนหมวดหมู่ที่โดน Soft Delete
+        entity.HasQueryFilter(e => e.IsDeleted == 0);
+
+        // ใส่เผื่อไว้เพื่อผูกมัดความสัมพันธ์ฝั่ง User ไม่ให้แอบเจน USER_ID1 ขึ้นมา
+        entity.HasOne(d => d.User)
+          .WithMany()
+          .HasForeignKey(d => d.UserId)
+          .OnDelete(DeleteBehavior.Cascade);
+    });
     }
 }
