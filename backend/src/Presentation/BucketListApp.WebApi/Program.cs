@@ -12,7 +12,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins("http://localhost:4200") // ยอมรับพอร์ตหน้าบ้าน Angular ของเรา
+        policy.WithOrigins("http://localhost:4200") // ยอมรับพอร์ตหน้าบ้าน Angular
               .AllowAnyMethod()                    // ยอมรับทุก Method (GET, POST, PUT, DELETE, OPTIONS)
               .AllowAnyHeader()                    // ยอมรับทุก Headers (รวมถึง Authorization, Content-Type)
               .AllowCredentials();                 // อนุญาตให้แนบ Cookie/Credentials หากจำเป็น
