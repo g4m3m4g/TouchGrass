@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  oracle-db:
+    image: gvenzl/oracle-xe:latest
+    container_name: bucketlist-oracle
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_PASSWORD=${DB_ORACLE_PASSWORD}
+      - APP_USER=${DB_APP_USER}
+      - APP_USER_PASSWORD=${DB_APP_USER_PASSWORD}
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+    networks:
+      - bucketlist-network
+
+  backend-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bucketlist-api
+    ports:
+      - "5266:5000"
+    depends_on:
+      - oracle-db
+    networks:
+      - bucketlist-network
+
+  frontend-web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bucketlist-web
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend-api
+    networks:
+      - bucketlist-network
+
+volumes:
+  oracle_data:
+
+networks:
+  bucketlist-network:
+    driver: bridge
